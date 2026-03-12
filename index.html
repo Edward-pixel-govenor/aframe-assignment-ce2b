@@ -2,114 +2,244 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>A-Frame Individual Assessment 01</title>
-  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-  <script>
-    AFRAME.registerComponent('wheel-zoom', {
-      schema: {
-        min: {type: 'number', default: 1.4},
-        max: {type: 'number', default: 8},
-        speed: {type: 'number', default: 0.002}
-      },
-      init: function () {
-        this.onWheel = this.onWheel.bind(this);
-        window.addEventListener('wheel', this.onWheel, {passive: false});
-      },
-      remove: function () {
-        window.removeEventListener('wheel', this.onWheel);
-      },
-      onWheel: function (evt) {
-        evt.preventDefault();
-        const pos = this.el.getAttribute('position');
-        const nextZ = Math.min(this.data.max, Math.max(this.data.min, pos.z + (evt.deltaY * this.data.speed)));
-        this.el.setAttribute('position', {x: pos.x, y: pos.y, z: nextZ});
-      }
-    });
-  </script>
+  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; }
+  </style>
 </head>
 <body>
-  <a-scene>
-    <a-sky color="#BEE6FF"></a-sky>
+  <a-scene fog="type: linear; color: #87CEEB; near: 20; far: 60">
 
-    <a-entity light="type: ambient; intensity: 0.5"></a-entity>
-    <a-entity light="type: directional; intensity: 0.8" position="2 6 3"></a-entity>
+    <!-- SKY & LIGHTING -->
+    <a-sky color="#87CEEB"></a-sky>
 
-    <a-plane
-      rotation="-90 0 0"
-      width="30"
-      height="30"
-      color="#6CA66C">
-    </a-plane>
+    <!-- Sun light -->
+    <a-light type="directional" color="#FFF5CC" intensity="1.2"
+             position="5 10 -5" cast-shadow="true"></a-light>
+    <a-light type="ambient" color="#d0e8ff" intensity="0.7"></a-light>
 
-    <a-plane
-      position="0 0.01 0"
-      rotation="-90 0 0"
-      width="8"
-      height="8"
-      color="#DDDDDD">
-    </a-plane>
+    <!-- GROUND -->
+    <a-plane rotation="-90 0 0" width="60" height="60"
+             material="color: #3a7d44; roughness: 0.9" shadow="receive: true"></a-plane>
 
-    <!-- Table -->
-    <a-box position="0 1 0" width="2.6" height="0.15" depth="1.5" color="#8B5A2B"></a-box>
-    <a-cylinder position="-1.15 0.5 -0.6" radius="0.07" height="1" color="#6F4518"></a-cylinder>
-    <a-cylinder position="1.15 0.5 -0.6" radius="0.07" height="1" color="#6F4518"></a-cylinder>
-    <a-cylinder position="-1.15 0.5 0.6" radius="0.07" height="1" color="#6F4518"></a-cylinder>
-    <a-cylinder position="1.15 0.5 0.6" radius="0.07" height="1" color="#6F4518"></a-cylinder>
+    <!-- GRASS TEXTURE PATCHES -->
+    <a-plane rotation="-90 0 0" position="0 0.01 0" width="60" height="60"
+             material="color: #4a9e56; opacity: 0.4; transparent: true"></a-plane>
 
-    <!-- Chair 1 -->
-    <a-box position="-1.2 0.52 1.45" width="0.8" height="0.08" depth="0.8" color="#444"></a-box>
-    <a-box position="-1.2 0.95 1.82" width="0.8" height="0.8" depth="0.08" color="#555"></a-box>
-    <a-cylinder position="-1.52 0.25 1.13" radius="0.04" height="0.5" color="#333"></a-cylinder>
-    <a-cylinder position="-0.88 0.25 1.13" radius="0.04" height="0.5" color="#333"></a-cylinder>
-    <a-cylinder position="-1.52 0.25 1.77" radius="0.04" height="0.5" color="#333"></a-cylinder>
-    <a-cylinder position="-0.88 0.25 1.77" radius="0.04" height="0.5" color="#333"></a-cylinder>
+    <!-- PATH / TILES leading to table -->
+    <a-box position="0 0.02 3"  width="1.2" height="0.05" depth="1.2"
+           material="color: #c8b89a; roughness: 0.8"></a-box>
+    <a-box position="0 0.02 1.5" width="1.2" height="0.05" depth="1.2"
+           material="color: #c8b89a; roughness: 0.8"></a-box>
+    <a-box position="0 0.02 0"  width="1.2" height="0.05" depth="1.2"
+           material="color: #c8b89a; roughness: 0.8"></a-box>
+    <a-box position="0 0.02 -1.5" width="1.2" height="0.05" depth="1.2"
+           material="color: #c8b89a; roughness: 0.8"></a-box>
 
-    <!-- Chair 2 -->
-    <a-box position="1.2 0.52 1.45" width="0.8" height="0.08" depth="0.8" color="#444"></a-box>
-    <a-box position="1.2 0.95 1.82" width="0.8" height="0.8" depth="0.08" color="#555"></a-box>
-    <a-cylinder position="0.88 0.25 1.13" radius="0.04" height="0.5" color="#333"></a-cylinder>
-    <a-cylinder position="1.52 0.25 1.13" radius="0.04" height="0.5" color="#333"></a-cylinder>
-    <a-cylinder position="0.88 0.25 1.77" radius="0.04" height="0.5" color="#333"></a-cylinder>
-    <a-cylinder position="1.52 0.25 1.77" radius="0.04" height="0.5" color="#333"></a-cylinder>
+    <!-- ===== TABLE ===== -->
+    <!-- Table top -->
+    <a-box id="table-top" position="0 0.75 0"
+           width="2.2" height="0.1" depth="1.2"
+           material="color: #8B4513; roughness: 0.6" shadow="cast: true; receive: true"></a-box>
+    <!-- Table legs -->
+    <a-box position="-0.9 0.35 -0.45" width="0.1" height="0.7" depth="0.1"
+           material="color: #6B3410; roughness: 0.7" shadow="cast: true"></a-box>
+    <a-box position="0.9 0.35 -0.45"  width="0.1" height="0.7" depth="0.1"
+           material="color: #6B3410; roughness: 0.7" shadow="cast: true"></a-box>
+    <a-box position="-0.9 0.35 0.45"  width="0.1" height="0.7" depth="0.1"
+           material="color: #6B3410; roughness: 0.7" shadow="cast: true"></a-box>
+    <a-box position="0.9 0.35 0.45"   width="0.1" height="0.7" depth="0.1"
+           material="color: #6B3410; roughness: 0.7" shadow="cast: true"></a-box>
 
-    <!-- MiLo tin -->
-    <a-cylinder position="-0.45 1.22 -0.15" radius="0.16" height="0.42" color="#1F7A3A"></a-cylinder>
-    <a-circle position="-0.45 1.43 -0.15" radius="0.16" rotation="-90 0 0" color="#D8B579"></a-circle>
-    <a-entity
-      position="-0.45 1.22 0.02"
-      text="value: MiLo; align: center; color: #FFFFFF; width: 1.6">
-    </a-entity>
+    <!-- ===== CHAIR 1 (left) ===== -->
+    <!-- Seat -->
+    <a-box position="-1.5 0.5 0" width="0.7" height="0.08" depth="0.7"
+           material="color: #5c3317; roughness: 0.7" shadow="cast: true"></a-box>
+    <!-- Back rest -->
+    <a-box position="-1.5 0.9 -0.31" width="0.7" height="0.7" depth="0.06"
+           material="color: #5c3317; roughness: 0.7" shadow="cast: true"></a-box>
+    <!-- Chair legs -->
+    <a-box position="-1.18 0.22 0.28"  width="0.06" height="0.44" depth="0.06"
+           material="color: #3e2208"></a-box>
+    <a-box position="-1.82 0.22 0.28"  width="0.06" height="0.44" depth="0.06"
+           material="color: #3e2208"></a-box>
+    <a-box position="-1.18 0.22 -0.28" width="0.06" height="0.44" depth="0.06"
+           material="color: #3e2208"></a-box>
+    <a-box position="-1.82 0.22 -0.28" width="0.06" height="0.44" depth="0.06"
+           material="color: #3e2208"></a-box>
 
-    <!-- Milk tin -->
-    <a-cylinder position="0.05 1.22 -0.15" radius="0.15" height="0.38" color="#F2F2F2"></a-cylinder>
-    <a-circle position="0.05 1.41 -0.15" radius="0.15" rotation="-90 0 0" color="#DDD"></a-circle>
-    <a-entity
-      position="0.05 1.22 0.02"
-      text="value: MILK; align: center; color: #1A1A1A; width: 1.4">
-    </a-entity>
+    <!-- ===== CHAIR 2 (right) ===== -->
+    <a-box position="1.5 0.5 0" width="0.7" height="0.08" depth="0.7"
+           material="color: #5c3317; roughness: 0.7" shadow="cast: true"></a-box>
+    <a-box position="1.5 0.9 0.31" width="0.7" height="0.7" depth="0.06"
+           material="color: #5c3317; roughness: 0.7" shadow="cast: true"></a-box>
+    <a-box position="1.18 0.22 0.28"  width="0.06" height="0.44" depth="0.06"
+           material="color: #3e2208"></a-box>
+    <a-box position="1.82 0.22 0.28"  width="0.06" height="0.44" depth="0.06"
+           material="color: #3e2208"></a-box>
+    <a-box position="1.18 0.22 -0.28" width="0.06" height="0.44" depth="0.06"
+           material="color: #3e2208"></a-box>
+    <a-box position="1.82 0.22 -0.28" width="0.06" height="0.44" depth="0.06"
+           material="color: #3e2208"></a-box>
 
-    <!-- Cup 1 -->
-    <a-cylinder position="0.65 1.16 -0.15" radius="0.11" height="0.2" color="#FFFFFF" open-ended="true"></a-cylinder>
-    <a-circle position="0.65 1.06 -0.15" radius="0.11" rotation="-90 0 0" color="#ECECEC"></a-circle>
-    <a-torus position="0.80 1.16 -0.15" radius="0.055" radius-tubular="0.012" rotation="0 0 90" color="#FFFFFF"></a-torus>
+    <!-- ===== MILO TIN (cylindrical, green/brown) ===== -->
+    <!-- Body -->
+    <a-cylinder position="-0.5 0.97 0" radius="0.13" height="0.32"
+                material="color: #2d6a1f; roughness: 0.5" shadow="cast: true"></a-cylinder>
+    <!-- Lid -->
+    <a-cylinder position="-0.5 1.145 0" radius="0.135" height="0.04"
+                material="color: #4a3000; roughness: 0.4"></a-cylinder>
+    <!-- Label band -->
+    <a-cylinder position="-0.5 0.97 0" radius="0.131" height="0.18"
+                material="color: #1a4a10; roughness: 0.5; opacity: 0.85; transparent: true"></a-cylinder>
 
-    <!-- Cup 2 -->
-    <a-cylinder position="0.95 1.16 0.18" radius="0.11" height="0.2" color="#FFF8DC" open-ended="true"></a-cylinder>
-    <a-circle position="0.95 1.06 0.18" radius="0.11" rotation="-90 0 0" color="#EBDCB8"></a-circle>
-    <a-torus position="1.10 1.16 0.18" radius="0.055" radius-tubular="0.012" rotation="0 0 90" color="#FFF8DC"></a-torus>
+    <!-- ===== MILK TIN (white cylindrical) ===== -->
+    <a-cylinder position="-0.1 0.95 -0.2" radius="0.1" height="0.28"
+                material="color: #f0f0f0; roughness: 0.4" shadow="cast: true"></a-cylinder>
+    <!-- Lid -->
+    <a-cylinder position="-0.1 1.1 -0.2" radius="0.105" height="0.04"
+                material="color: #cccccc; roughness: 0.4"></a-cylinder>
+    <!-- Label -->
+    <a-cylinder position="-0.1 0.95 -0.2" radius="0.102" height="0.14"
+                material="color: #e8f4ff; roughness: 0.4; opacity: 0.9; transparent: true"></a-cylinder>
 
-    <!-- Extra decoration -->
-    <a-box position="-0.9 1.12 0.25" width="0.38" height="0.04" depth="0.28" color="#E7CFA3"></a-box>
-    <a-cone position="-0.9 1.3 0.25" radius-bottom="0.08" radius-top="0.01" height="0.26" color="#3E8F4A"></a-cone>
+    <!-- ===== CUP 1 ===== -->
+    <!-- Cup body (tapered using cylinder) -->
+    <a-cylinder position="0.35 0.87 0.15" radius="0.07" height="0.14"
+                material="color: #e8d5a3; roughness: 0.4" shadow="cast: true"></a-cylinder>
+    <!-- Cup handle -->
+    <a-torus position="0.43 0.87 0.15" radius="0.05" radius-tubular="0.012"
+             rotation="0 90 0" material="color: #d4b87a"></a-torus>
+    <!-- Saucer -->
+    <a-cylinder position="0.35 0.81 0.15" radius="0.11" height="0.02"
+                material="color: #f5f0e0"></a-cylinder>
 
-    <a-entity position="0 1.7 4.2">
-      <a-camera
-        look-controls="pointerLockEnabled: false; reverseMouseDrag: false"
-        wasd-controls="acceleration: 30"
-        wheel-zoom="min: 1.4; max: 8; speed: 0.002">
-      </a-camera>
-    </a-entity>
+    <!-- ===== CUP 2 ===== -->
+    <a-cylinder position="0.35 0.87 -0.15" radius="0.07" height="0.14"
+                material="color: #e8d5a3; roughness: 0.4" shadow="cast: true"></a-cylinder>
+    <a-torus position="0.43 0.87 -0.15" radius="0.05" radius-tubular="0.012"
+             rotation="0 90 0" material="color: #d4b87a"></a-torus>
+    <a-cylinder position="0.35 0.81 -0.15" radius="0.11" height="0.02"
+                material="color: #f5f0e0"></a-cylinder>
+
+    <!-- ===== TABLECLOTH (thin plane on table) ===== -->
+    <a-plane position="0 0.81 0" rotation="-90 0 0" width="2.0" height="1.0"
+             material="color: #fffaf0; opacity: 0.9; transparent: true; roughness: 0.9"></a-plane>
+
+    <!-- ===== BEAUTIFICATION ===== -->
+
+    <!-- FENCE posts around perimeter -->
+    <a-box position="-4 0.5 -4" width="0.1" height="1" depth="0.1" material="color: #c8a46e"></a-box>
+    <a-box position="-4 0.5 4"  width="0.1" height="1" depth="0.1" material="color: #c8a46e"></a-box>
+    <a-box position="4 0.5 -4"  width="0.1" height="1" depth="0.1" material="color: #c8a46e"></a-box>
+    <a-box position="4 0.5 4"   width="0.1" height="1" depth="0.1" material="color: #c8a46e"></a-box>
+    <!-- Fence rails -->
+    <a-box position="0 0.7 -4" width="8" height="0.08" depth="0.06" material="color: #c8a46e"></a-box>
+    <a-box position="0 0.4 -4" width="8" height="0.08" depth="0.06" material="color: #c8a46e"></a-box>
+    <!-- Front fence with gateway gap (1.2m wide opening centered at x=0) -->
+    <a-box position="-2.6 0.7 4" width="3.2" height="0.08" depth="0.06" material="color: #c8a46e"></a-box>
+    <a-box position="-2.6 0.4 4" width="3.2" height="0.08" depth="0.06" material="color: #c8a46e"></a-box>
+    <a-box position="2.6 0.7 4"  width="3.2" height="0.08" depth="0.06" material="color: #c8a46e"></a-box>
+    <a-box position="2.6 0.4 4"  width="3.2" height="0.08" depth="0.06" material="color: #c8a46e"></a-box>
+    <!-- Gate posts -->
+    <a-box position="-0.65 0.6 4" width="0.12" height="1.2" depth="0.12" material="color: #a0724a"></a-box>
+    <a-box position="0.65 0.6 4"  width="0.12" height="1.2" depth="0.12" material="color: #a0724a"></a-box>
+    <!-- Gate post caps -->
+    <a-sphere position="-0.65 1.25 4" radius="0.09" material="color: #8B5E3C"></a-sphere>
+    <a-sphere position="0.65 1.25 4"  radius="0.09" material="color: #8B5E3C"></a-sphere>
+    <a-box position="-4 0.7 0" width="0.06" height="0.08" depth="8" material="color: #c8a46e"></a-box>
+    <a-box position="-4 0.4 0" width="0.06" height="0.08" depth="8" material="color: #c8a46e"></a-box>
+    <a-box position="4 0.7 0"  width="0.06" height="0.08" depth="8" material="color: #c8a46e"></a-box>
+    <a-box position="4 0.4 0"  width="0.06" height="0.08" depth="8" material="color: #c8a46e"></a-box>
+
+    <!-- TREES (cone + cylinder trunk) -->
+    <!-- Tree 1 -->
+    <a-cylinder position="-3 0.6 -3" radius="0.15" height="1.2"
+                material="color: #6B3A2A"></a-cylinder>
+    <a-cone position="-3 1.8 -3" radius-bottom="0.7" radius-top="0.05" height="1.6"
+            material="color: #1a6b2a; roughness: 0.8"></a-cone>
+    <a-cone position="-3 2.5 -3" radius-bottom="0.5" radius-top="0.05" height="1.2"
+            material="color: #228B22; roughness: 0.8"></a-cone>
+    <!-- Tree 2 -->
+    <a-cylinder position="3 0.6 -3" radius="0.15" height="1.2"
+                material="color: #6B3A2A"></a-cylinder>
+    <a-cone position="3 1.8 -3" radius-bottom="0.7" radius-top="0.05" height="1.6"
+            material="color: #1a6b2a"></a-cone>
+    <a-cone position="3 2.5 -3" radius-bottom="0.5" radius-top="0.05" height="1.2"
+            material="color: #228B22"></a-cone>
+    <!-- Tree 3 -->
+    <a-cylinder position="-3 0.6 3" radius="0.15" height="1.2"
+                material="color: #6B3A2A"></a-cylinder>
+    <a-cone position="-3 1.8 3" radius-bottom="0.7" radius-top="0.05" height="1.6"
+            material="color: #2e7d32"></a-cone>
+    <a-cone position="-3 2.5 3" radius-bottom="0.5" radius-top="0.05" height="1.2"
+            material="color: #33a02c"></a-cone>
+    <!-- Tree 4 -->
+    <a-cylinder position="3 0.6 3" radius="0.15" height="1.2"
+                material="color: #6B3A2A"></a-cylinder>
+    <a-cone position="3 1.8 3" radius-bottom="0.7" radius-top="0.05" height="1.6"
+            material="color: #2e7d32"></a-cone>
+    <a-cone position="3 2.5 3" radius-bottom="0.5" radius-top="0.05" height="1.2"
+            material="color: #33a02c"></a-cone>
+
+    <!-- FLOWER BUSHES -->
+    <a-sphere position="-2 0.35 -1.5" radius="0.3" material="color: #ff6b6b; roughness: 0.9"></a-sphere>
+    <a-sphere position="-2.3 0.3 -1.2" radius="0.25" material="color: #ff8e53; roughness: 0.9"></a-sphere>
+    <a-sphere position="2 0.35 -1.5" radius="0.3" material="color: #c678dd; roughness: 0.9"></a-sphere>
+    <a-sphere position="2.3 0.3 -1.2" radius="0.25" material="color: #ff6b9d; roughness: 0.9"></a-sphere>
+
+    <!-- SMALL ROCKS / PEBBLES -->
+    <a-sphere position="-1.5 0.12 2" radius="0.18" material="color: #9e9e9e; roughness: 0.9"></a-sphere>
+    <a-sphere position="-1.2 0.1 2.2" radius="0.12" material="color: #757575; roughness: 0.9"></a-sphere>
+    <a-sphere position="1.5 0.1 2" radius="0.16" material="color: #8d8d8d; roughness: 0.9"></a-sphere>
+
+    <!-- LANTERN / LAMP POST (left) -->
+    <!-- Post -->
+    <a-cylinder position="-1.2 1.0 3.5" radius="0.04" height="2.0"
+                material="color: #2c2c2c"></a-cylinder>
+    <!-- Lamp head -->
+    <a-box position="-1.2 2.1 3.5" width="0.2" height="0.25" depth="0.2"
+           material="color: #333; roughness: 0.3"></a-box>
+    <a-sphere position="-1.2 2.1 3.5" radius="0.1"
+              material="color: #ffffaa; emissive: #ffff44; emissiveIntensity: 0.8"></a-sphere>
+    <a-light type="point" position="-1.2 2.1 3.5" color="#fffaaa" intensity="0.5" distance="5"></a-light>
+
+    <!-- LANTERN (right) -->
+    <a-cylinder position="1.2 1.0 3.5" radius="0.04" height="2.0"
+                material="color: #2c2c2c"></a-cylinder>
+    <a-box position="1.2 2.1 3.5" width="0.2" height="0.25" depth="0.2"
+           material="color: #333; roughness: 0.3"></a-box>
+    <a-sphere position="1.2 2.1 3.5" radius="0.1"
+              material="color: #ffffaa; emissive: #ffff44; emissiveIntensity: 0.8"></a-sphere>
+    <a-light type="point" position="1.2 2.1 3.5" color="#fffaaa" intensity="0.5" distance="5"></a-light>
+
+    <!-- LOW HEDGES along sides -->
+    <a-box position="-3.5 0.3 0" width="0.4" height="0.6" depth="6"
+           material="color: #2d6a1f; roughness: 0.95"></a-box>
+    <a-box position="3.5 0.3 0" width="0.4" height="0.6" depth="6"
+           material="color: #2d6a1f; roughness: 0.95"></a-box>
+
+    <!-- CLOUD decorations in sky -->
+    <a-sphere position="-5 6 -10" radius="1.0" material="color: #ffffff; opacity: 0.9; transparent: true"></a-sphere>
+    <a-sphere position="-4 6.3 -10" radius="1.3" material="color: #ffffff; opacity: 0.9; transparent: true"></a-sphere>
+    <a-sphere position="-3 6 -10" radius="1.0" material="color: #ffffff; opacity: 0.9; transparent: true"></a-sphere>
+
+    <a-sphere position="4 7 -12" radius="0.9" material="color: #ffffff; opacity: 0.9; transparent: true"></a-sphere>
+    <a-sphere position="5 7.2 -12" radius="1.1" material="color: #ffffff; opacity: 0.9; transparent: true"></a-sphere>
+    <a-sphere position="6 7 -12" radius="0.9" material="color: #ffffff; opacity: 0.9; transparent: true"></a-sphere>
+
+    <!-- DISTANT MOUNTAINS -->
+    <a-cone position="-12 4 -20" radius-bottom="8" radius-top="0.2" height="10"
+            material="color: #7a9e7e; roughness: 1.0; opacity: 0.7; transparent: true"></a-cone>
+    <a-cone position="10 3.5 -22" radius-bottom="7" radius-top="0.2" height="8"
+            material="color: #6d9178; roughness: 1.0; opacity: 0.65; transparent: true"></a-cone>
+
+    <!-- CAMERA -->
+    <a-camera position="0 1.6 7" look-controls wasd-controls>
+      <a-cursor color="#fff" fuse="false"></a-cursor>
+    </a-camera>
+
   </a-scene>
 </body>
 </html>
